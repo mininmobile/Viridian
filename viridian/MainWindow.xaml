@@ -7,6 +7,6 @@
         mc:Ignorable="d"
         Title="Viridian" Height="550" Width="750">
     <Grid>
-        <Canvas/>
+        <Canvas x:Name="DisplayCanvas"/>
     </Grid>
 </Window>
