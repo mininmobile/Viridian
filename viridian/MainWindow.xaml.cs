@@ -16,12 +16,48 @@ using System.Windows.Shapes;
 namespace viridian {
 	public partial class MainWindow : Window {
 		public UtilCanvas c;
+		public Document d;
+
+		int top = 0;
+		int left = 0;
 
 		public MainWindow() {
 			InitializeComponent();
 			c = new UtilCanvas(DisplayCanvas);
+			d = new Document();
 
-			c.DrawText("despacito");
+			// generate example document
+			d.head.AddChild(Document.NewNode("title", null, new List<Node>() { Document.NewTextNode("my webpage") }));
+			d.body.AddChild(Document.NewNode("h1", null, new List<Node>() { Document.NewTextNode("welcome") }));
+			d.body.AddChild(Document.NewNode("p", null, new List<Node>() { Document.NewTextNode("welcome to my website") }));
+			d.body.AddChild(Document.NewNode("div", new List<Attr>() { new Attr("id", "content"), new Attr("class", "container wrapper") }, new List<Node>() { Document.NewNode("h2", null, new List<Node>() { Document.NewTextNode("a title in a div") }), Document.NewNode("p", null, new List<Node>() { Document.NewTextNode("a paragraph in a div") }) }));
+
+			DrawElementTree(d.root);
+		}
+
+		public void DrawElementTree(ElementNode node) {
+			foreach (Node child in node.Children) {
+				if (child.GetType() == typeof(ElementNode)) {
+					string attributes = "";
+
+					foreach (Attr attribute in ((ElementNode)child).Attributes) {
+						attributes += ' ' + attribute.key + '=' + '"' + attribute.value + '"';
+					}
+
+					c.DrawText("<" + ((ElementNode)child).TagName + attributes + ">", left * 12, top * 12, 12);
+					top++;
+					left++;
+					DrawElementTree((ElementNode)child);
+					left--;
+					c.DrawText("</" + ((ElementNode)child).TagName + ">", left * 12, top * 12, 12);
+					top++;
+				} else if (child.GetType() == typeof(TextNode)) {
+					left++;
+					c.DrawText('"' + ((TextNode)child).Text + '"', left * 12, top * 12, 12);
+					left--;
+					top++;
+				}
+			}
 		}
 	}
 
@@ -39,11 +75,9 @@ namespace viridian {
 
 			// set content
 			textBlock.Text = text;
-
 			// set appearance
 			textBlock.FontSize = size;
 			textBlock.Foreground = new SolidColorBrush(color);
-
 			// set position
 			Canvas.SetLeft(textBlock, x);
 			Canvas.SetTop(textBlock, y);
