@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:viridian"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="Viridian" Height="550" Width="750">
     <Grid>
-        
+        <Canvas/>
     </Grid>
 </Window>
