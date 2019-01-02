@@ -24,13 +24,29 @@ namespace viridian {
 		public MainWindow() {
 			InitializeComponent();
 			c = new UtilCanvas(DisplayCanvas);
-			d = new Document();
 
 			// generate example document
+			string html = @"<html>
+<head>
+	<title>my webpage</title>
+</head>
+<body>
+	<h1>welcome</h1>
+	<p>welcome to my website</p>
+	<div id=""content"" class=""container wrapper"">
+		<h2>a title in a div</h2>
+		<p>a paragraph in a div</p>
+	</div>
+</body>
+</html>";
+
+			d = new Document(html);
+			/*
 			d.head.AddChild(Document.NewNode("title", null, new List<Node>() { Document.NewTextNode("my webpage") }));
 			d.body.AddChild(Document.NewNode("h1", null, new List<Node>() { Document.NewTextNode("welcome") }));
 			d.body.AddChild(Document.NewNode("p", null, new List<Node>() { Document.NewTextNode("welcome to my website") }));
 			d.body.AddChild(Document.NewNode("div", new List<Attr>() { new Attr("id", "content"), new Attr("class", "container wrapper") }, new List<Node>() { Document.NewNode("h2", null, new List<Node>() { Document.NewTextNode("a title in a div") }), Document.NewNode("p", null, new List<Node>() { Document.NewTextNode("a paragraph in a div") }) }));
+			*/
 
 			DrawElementTree(d.root);
 		}

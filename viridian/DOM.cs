@@ -19,6 +19,50 @@ namespace viridian {
 			root.AddChild(body);
 		}
 
+		public Document(string html) {
+			root = NewNode("html");
+
+			// parser
+			int mode = 0; // 0: looking for node
+			              // 1: regular node
+			string mem = "";
+			for (int i = 0; i < html.Length; i++) {
+				switch (mode) {
+					case 0: {
+						switch (html[i]) {
+							case '<': {
+								mode = 1;
+							} break;
+
+							default: {
+								// nothing
+							} break;
+						}
+					} break;
+
+					case 1: {
+						switch (html[i]) {
+							case '>':
+							case ' ': {
+								root.AddChild(NewNode(mem));
+								mem = "";
+								mode = 0;
+							} break;
+
+							case '/': {
+								mem = "";
+								mode = 0;
+							} break;
+
+							default: {
+								mem += html[i];
+							} break;
+						}
+					} break;
+				}
+			}
+		}
+
 		public static TextNode NewTextNode(string text) {
 			return new TextNode(
 				text
