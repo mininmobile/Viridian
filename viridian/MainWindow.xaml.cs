@@ -15,16 +15,13 @@ using System.Windows.Shapes;
 
 namespace viridian {
 	public partial class MainWindow : Window {
-		public UtilCanvas c;
 		public Document d;
 		public CSS css;
 
 		int top = 0;
-		int scroll = 0;
 
 		public MainWindow() {
 			InitializeComponent();
-			c = new UtilCanvas(DisplayCanvas);
 			d = new Document();
 			css = new CSS();
 
@@ -63,18 +60,25 @@ namespace viridian {
 				}
 			}
 
-			DrawElementTree(d.root);
+			DrawElementTree(d.root, DisplayCanvas);
 		}
 
-		public void DrawElementTree(ElementNode node) {
+		public void DrawElementTree(ElementNode node, Canvas me) {
 			foreach (Node child in node.Children) {
 				if (child.GetType() == typeof(ElementNode)) {
-					DrawElementTree((ElementNode)child);
+					Canvas container = Cutil.DrawRectangle(
+						me,
+						0,
+						0
+					);
+
+					DrawElementTree((ElementNode)child, container);
 				} else if (child.GetType() == typeof(TextNode)) {
 					Dictionary<string, CSSValue> properties = css.GetStyleForNode(child.Parent);
 
 					if (((CSSKeyword)properties["display"]).Keyword != Keyword.none) {
-						c.DrawText(
+						TextBlock text = Cutil.DrawText(
+							me,
 							((TextNode)child).Text,
 							0,
 							top,
@@ -89,14 +93,8 @@ namespace viridian {
 		}
 	}
 
-	public class UtilCanvas {
-		Canvas target;
-	
-		public UtilCanvas(Canvas canvas) {
-			target = canvas;
-		}
-
-		public void DrawText(string text, double x = 0, double y = 0, double size = 16, Color color = default(Color)) {
+	public class Cutil {
+		public static TextBlock DrawText(Canvas target, string text, double x = 0, double y = 0, double size = 16, Color color = default(Color)) {
 			color = color == default(Color) ? Color.FromRgb(0, 0, 0) : color;
 
 			TextBlock textBlock = new TextBlock();
@@ -111,6 +109,26 @@ namespace viridian {
 			Canvas.SetTop(textBlock, y);
 
 			target.Children.Add(textBlock);
+
+			return textBlock;
+		}
+
+		public static Canvas DrawRectangle(Canvas target, double x, double y, double w = 0, double h = 0, Color color = default(Color)) {
+			color = color == default(Color) ? Color.FromRgb(0, 0, 0) : color;
+
+			Canvas canvas = new Canvas();
+
+			// set appearance
+			canvas.Background = new SolidColorBrush(color);
+			canvas.Height = w;
+			canvas.Width = h;
+			// set position
+			Canvas.SetTop(canvas, x);
+			Canvas.SetLeft(canvas, y);
+
+			target.Children.Add(canvas);
+
+			return canvas;
 		}
 	}
 }

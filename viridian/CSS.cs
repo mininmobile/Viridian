@@ -17,10 +17,12 @@ namespace viridian {
 				{ "display", new CSSKeyword(Keyword.none) },
 			}));
 
-			Rules.Add(NewBasicRule("h1", new Dictionary<string, CSSValue>() {
-				{ "color", new CSSRgb(0, 0, 0) },
-				{ "font-size", new CSSEm(2) }
-			}));
+			Rules.Add(NewBasicRule("h1", new Dictionary<string, CSSValue>() { { "font-size", new CSSEm(2) } }));
+			Rules.Add(NewBasicRule("h2", new Dictionary<string, CSSValue>() { { "font-size", new CSSEm(1.5) } }));
+			Rules.Add(NewBasicRule("h3", new Dictionary<string, CSSValue>() { { "font-size", new CSSEm(1.17) } }));
+			Rules.Add(NewBasicRule("h4", new Dictionary<string, CSSValue>() { { "font-size", new CSSEm(1) } }));
+			Rules.Add(NewBasicRule("h5", new Dictionary<string, CSSValue>() { { "font-size", new CSSEm(0.83) } }));
+			Rules.Add(NewBasicRule("h6", new Dictionary<string, CSSValue>() { { "font-size", new CSSEm(0.67) } }));
 		}
 
 		public Dictionary<string, CSSValue> GetStyleForNode(ElementNode node) {
@@ -130,13 +132,13 @@ namespace viridian {
 	}
 
 	public class CSSEm : CSSLength {
-		public int Em;
+		public double Em;
 
-		public CSSEm(int em) {
+		public CSSEm(double em) {
 			Em = em;
 
 			// 16 should change due to em calculations blah blah I don't have them yet
-			Pixels = Em * 16;
+			Pixels = (int)Math.Floor(Em * 16);
 		}
 	}
 }
