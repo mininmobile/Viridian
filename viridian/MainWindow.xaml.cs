@@ -38,19 +38,30 @@ namespace viridian {
 
 				{ //body
 					ElementNode title1 = Document.NewNode("h1");
+					title1.AddAttribute("id", "title");
 					title1.AddChild(Document.NewTextNode("welcome"));
 					d.body.AddChild(title1);
 
 					ElementNode paragraph1 = Document.NewNode("p");
-					paragraph1.AddChild(Document.NewTextNode("welcome"));
+					paragraph1.AddAttribute("class", "text");
+					paragraph1.AddChild(Document.NewTextNode("welcome to my website"));
 					d.body.AddChild(paragraph1);
+
+					ElementNode div = Document.NewNode("div");
+					div.AddAttribute("id", "content");
+					div.AddAttribute("class", "container wrapper");
+					d.body.AddChild(div);
+
+					ElementNode title2 = Document.NewNode("h2");
+					title2.AddChild(Document.NewTextNode("a title in a div"));
+					div.AddChild(title2);
+
+					ElementNode paragraph2 = Document.NewNode("p");
+					paragraph2.AddAttribute("class", "text");
+					paragraph2.AddChild(Document.NewTextNode("a paragraph in a div"));
+					div.AddChild(paragraph2);
 				}
 			}
-
-			/*
-			d.body.AddChild(Document.NewNode("h1", new List<Attr>() { new Attr("id", "title") }, new List<Node>() { Document.NewTextNode("welcome") }));
-			d.body.AddChild(Document.NewNode("p", new List<Attr>() { new Attr("class", "text") }, new List<Node>() { Document.NewTextNode("welcome to my website") }));
-			d.body.AddChild(Document.NewNode("div", new List<Attr>() { new Attr("id", "content"), new Attr("class", "container wrapper") }, new List<Node>() { Document.NewNode("h2", null, new List<Node>() { Document.NewTextNode("a title in a div") }), Document.NewNode("p", new List<Attr>() { new Attr("class", "text") }, new List<Node>() { Document.NewTextNode("a paragraph in a div") }) }));*/
 
 			DrawElementTree(d.root);
 		}
@@ -60,17 +71,19 @@ namespace viridian {
 				if (child.GetType() == typeof(ElementNode)) {
 					DrawElementTree((ElementNode)child);
 				} else if (child.GetType() == typeof(TextNode)) {
-					List<Property> properties = css.GetStyleForNode(child.Parent);
+					Dictionary<string, CSSValue> properties = css.GetStyleForNode(child.Parent);
 
-					c.DrawText(
-						((TextNode)child).Text,
-						0,
-						top,
-						((CSSPx)css.GetPropertyFromList("font-size", properties).Value).Pixels,
-						((CSSRgb)css.GetPropertyFromList("color", properties).Value).ToColor()
-					);
+					if (((CSSKeyword)properties["display"]).Keyword != Keyword.none) {
+						c.DrawText(
+							((TextNode)child).Text,
+							0,
+							top,
+							((CSSLength)properties["font-size"]).Pixels,
+							((CSSRgb)properties["color"]).ToColor()
+						);
 
-					top += ((CSSPx)css.GetPropertyFromList("font-size", properties).Value).Pixels;
+						top += ((CSSLength)properties["font-size"]).Pixels;
+					}
 				}
 			}
 		}
