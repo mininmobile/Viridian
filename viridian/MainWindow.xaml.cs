@@ -17,36 +17,40 @@ namespace viridian {
 	public partial class MainWindow : Window {
 		public UtilCanvas c;
 		public Document d;
+		public CSS css;
 
 		int top = 0;
-		int left = 0;
+		int scroll = 0;
 
 		public MainWindow() {
 			InitializeComponent();
 			c = new UtilCanvas(DisplayCanvas);
+			d = new Document();
+			css = new CSS();
 
 			// generate example document
-			string html = @"<html>
-<head>
-	<title>my webpage</title>
-</head>
-<body>
-	<h1>welcome</h1>
-	<p>welcome to my website</p>
-	<div id=""content"" class=""container wrapper"">
-		<h2>a title in a div</h2>
-		<p>a paragraph in a div</p>
-	</div>
-</body>
-</html>";
+			{
+				{ // head
+					ElementNode title = Document.NewNode("title");
+					title.AddChild(Document.NewTextNode("my webpage"));
+					d.head.AddChild(title);
+				}
 
-			d = new Document(html);
+				{ //body
+					ElementNode title1 = Document.NewNode("h1");
+					title1.AddChild(Document.NewTextNode("welcome"));
+					d.body.AddChild(title1);
+
+					ElementNode paragraph1 = Document.NewNode("p");
+					paragraph1.AddChild(Document.NewTextNode("welcome"));
+					d.body.AddChild(paragraph1);
+				}
+			}
+
 			/*
-			d.head.AddChild(Document.NewNode("title", null, new List<Node>() { Document.NewTextNode("my webpage") }));
-			d.body.AddChild(Document.NewNode("h1", null, new List<Node>() { Document.NewTextNode("welcome") }));
-			d.body.AddChild(Document.NewNode("p", null, new List<Node>() { Document.NewTextNode("welcome to my website") }));
-			d.body.AddChild(Document.NewNode("div", new List<Attr>() { new Attr("id", "content"), new Attr("class", "container wrapper") }, new List<Node>() { Document.NewNode("h2", null, new List<Node>() { Document.NewTextNode("a title in a div") }), Document.NewNode("p", null, new List<Node>() { Document.NewTextNode("a paragraph in a div") }) }));
-			*/
+			d.body.AddChild(Document.NewNode("h1", new List<Attr>() { new Attr("id", "title") }, new List<Node>() { Document.NewTextNode("welcome") }));
+			d.body.AddChild(Document.NewNode("p", new List<Attr>() { new Attr("class", "text") }, new List<Node>() { Document.NewTextNode("welcome to my website") }));
+			d.body.AddChild(Document.NewNode("div", new List<Attr>() { new Attr("id", "content"), new Attr("class", "container wrapper") }, new List<Node>() { Document.NewNode("h2", null, new List<Node>() { Document.NewTextNode("a title in a div") }), Document.NewNode("p", new List<Attr>() { new Attr("class", "text") }, new List<Node>() { Document.NewTextNode("a paragraph in a div") }) }));*/
 
 			DrawElementTree(d.root);
 		}
@@ -54,24 +58,19 @@ namespace viridian {
 		public void DrawElementTree(ElementNode node) {
 			foreach (Node child in node.Children) {
 				if (child.GetType() == typeof(ElementNode)) {
-					string attributes = "";
-
-					foreach (Attr attribute in ((ElementNode)child).Attributes) {
-						attributes += ' ' + attribute.key + '=' + '"' + attribute.value + '"';
-					}
-
-					c.DrawText("<" + ((ElementNode)child).TagName + attributes + ">", left * 12, top * 12, 12);
-					top++;
-					left++;
 					DrawElementTree((ElementNode)child);
-					left--;
-					c.DrawText("</" + ((ElementNode)child).TagName + ">", left * 12, top * 12, 12);
-					top++;
 				} else if (child.GetType() == typeof(TextNode)) {
-					left++;
-					c.DrawText('"' + ((TextNode)child).Text + '"', left * 12, top * 12, 12);
-					left--;
-					top++;
+					List<Property> properties = css.GetStyleForNode(child.Parent);
+
+					c.DrawText(
+						((TextNode)child).Text,
+						0,
+						top,
+						((CSSPx)css.GetPropertyFromList("font-size", properties).Value).Pixels,
+						((CSSRgb)css.GetPropertyFromList("color", properties).Value).ToColor()
+					);
+
+					top += ((CSSPx)css.GetPropertyFromList("font-size", properties).Value).Pixels;
 				}
 			}
 		}
